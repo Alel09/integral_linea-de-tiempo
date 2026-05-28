@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Matemáticos a través del Tiempo</title>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap"
+		rel="stylesheet" />
+
+	<!-- MathJax: soporta \( inline \) y \[ bloque \], también $ y $$ -->
+	<script>
+		window.MathJax = {
+			tex: {
+				inlineMath: [['\\(', '\\)'], ['$', '$']],
+				displayMath: [['\\[', '\\]'], ['$$', '$$']],
+				processEscapes: true
+			},
+			options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+		};
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+	<style>
+		/* ══════════════════════════════════════════════
+       VARIABLES
+    ══════════════════════════════════════════════ */
+		:root {
+			--bg: #07091a;
+			--bg-card: #0c1020;
+			--bg-modal: #0f1525;
+			--bg-formula: #131c2e;
+			--gold: #c9a84c;
+			--gold-l: #e8c96a;
+			--gold-d: #6d5720;
+			--cream: #ede7d3;
+			--cream-d: #9e967f;
+			--red-glow: #ff3b3b;
+			--r: 4px;
+			--trans: 0.22s ease;
+			--ff-display: 'Playfair Display', Georgia, serif;
+			--ff-body: 'Crimson Text', Georgia, serif;
+		}
+
+		/* ══════════════════════════════════════════════
+       RESET
+    ══════════════════════════════════════════════ */
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html {
+			font-size: 16px;
+			scroll-behavior: smooth;
+		}
+
+		body {
+			background: var(--bg);
+			color: var(--cream);
+			font-family: var(--ff-body);
+			font-size: 1.05rem;
+			line-height: 1.75;
+			min-height: 100vh;
+			overflow-x: hidden;
+		}
+
+		/* textura de grano sutil */
+		body::before {
+			content: '';
+			position: fixed;
+			inset: 0;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+			pointer-events: none;
+			z-index: 0;
+		}
+
+		/* ══════════════════════════════════════════════
+       ENCABEZADO
+    ══════════════════════════════════════════════ */
+		.site-header {
+			position: relative;
+			z-index: 1;
+			text-align: center;
+			padding: 3rem 1.5rem 2rem;
+		}
+
+		.site-header .over {
+			display: inline-block;
+			font-family: var(--ff-body);
+			font-style: italic;
+			color: var(--gold);
+			letter-spacing: .22em;
+			font-size: .75rem;
+			text-transform: uppercase;
+			margin-bottom: .8rem;
+		}
+
+		.site-header h1 {
+			font-family: var(--ff-display);
+			font-weight: 900;
+			font-size: clamp(1.9rem, 6vw, 3.4rem);
+			line-height: 1.12;
+			margin-bottom: .9rem;
+		}
+
+		.site-header h1 em {
+			font-style: italic;
+			color: var(--gold);
+		}
+
+		.site-header .lead {
+			max-width: 520px;
+			margin: 0 auto;
+			color: var(--cream-d);
+			font-size: 1rem;
+		}
+
+		.ornament {
+			display: flex;
+			align-items: center;
+			gap: .8rem;
+			max-width: 260px;
+			margin: 1.8rem auto 0;
+		}
+
+		.ornament::before {
+			content: '';
+			flex: 1;
+			height: 1px;
+			background: linear-gradient(to right, transparent, var(--gold-d));
+		}
+
+		.ornament::after {
+			content: '';
+			flex: 1;
+			height: 1px;
+			background: linear-gradient(to left, transparent, var(--gold-d));
+		}
+
+		.ornament .diamond {
+			width: 7px;
+			height: 7px;
+			background: var(--gold);
+			transform: rotate(45deg);
+			flex-shrink: 0;
+		}
+
+		/* ══════════════════════════════════════════════
+       ZOOM CONTROL
+    ══════════════════════════════════════════════ */
+		.zoom-wrap {
+			position: relative;
+			z-index: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 1rem;
+			padding: .5rem 1.5rem 1.4rem;
+		}
+
+		.zoom-label {
+			font-size: .7rem;
+			color: var(--gold-d);
+			letter-spacing: .1em;
+			font-family: var(--ff-body);
+		}
+
+		.zoom-value {
+			font-size: .7rem;
+			color: var(--gold);
+			font-family: var(--ff-body);
+			min-width: 24px;
+		}
+
+		#zoom-slider {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 130px;
+			height: 3px;
+			background: linear-gradient(to right, var(--gold) 0%, var(--gold-d) 100%);
+			border-radius: 2px;
+			outline: none;
+			cursor: pointer;
+		}
+
+		#zoom-slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 13px;
+			height: 13px;
+			border-radius: 50%;
+			background: var(--gold);
+			border: 2px solid var(--bg);
+			cursor: pointer;
+		}
+
+		/* ══════════════════════════════════════════════
+       SECCIÓN LÍNEA DEL TIEMPO
+    ══════════════════════════════════════════════ */
+		.timeline-section {
+			position: relative;
+			z-index: 1;
+			padding-bottom: 4rem;
+		}
+
+		.tl-scroll {
+			overflow-x: hidden;
+			overflow-y: visible;
+			padding: 0 3rem;
+			cursor: grab;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: thin;
+			scrollbar-color: var(--gold-d) transparent;
+		}
+
+		.tl-scroll:active {
+			cursor: grabbing;
+		}
+
+		.tl-scroll::-webkit-scrollbar {
+			height: 4px;
+		}
+
+		.tl-scroll::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.tl-scroll::-webkit-scrollbar-thumb {
+			background: var(--gold-d);
+			border-radius: 2px;
+		}
+
+		/* tl-inner: dimensiones se calculan dinámicamente en JS */
+		.tl-inner {
+			position: relative;
+			min-width: 100%;
+		}
+
+		/* ── Línea principal ── */
+		.tl-line {
+			position: absolute;
+			left: 0;
+			right: 0;
+			height: 2px;
+			/* top se fija en JS */
+			background: linear-gradient(to right,
+					transparent 0%, var(--gold-d) 3%,
+					var(--gold) 15%, var(--gold) 85%,
+					var(--gold-d) 97%, transparent 100%);
+		}
+
+		.tl-line::after {
+			content: '';
+			position: absolute;
+			right: -2px;
+			top: 50%;
+			transform: translateY(-50%);
+			border-left: 8px solid var(--gold-d);
+			border-top: 5px solid transparent;
+			border-bottom: 5px solid transparent;
+		}
+
+		/* ── Ticks de año ── */
+		.tl-tick {
+			position: absolute;
+			/* left y top fijados en JS */
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.tl-tick .tk-line {
+			width: 1px;
+			height: 7px;
+			background: var(--gold-d);
+			opacity: .45;
+		}
+
+		.tl-tick .tk-year {
+			font-size: .56rem;
+			color: var(--gold-d);
+			letter-spacing: .05em;
+			margin-top: 2px;
+			white-space: nowrap;
+		}
+
+		/* ── Punto (dot) en la línea ── */
+		.dot-circle {
+			position: absolute;
+			/* left y top fijados en JS */
+			transform: translateX(-50%);
+			border-radius: 50%;
+			background: var(--bg);
+			border: 2px solid var(--gold);
+			transition: all var(--trans);
+			cursor: pointer;
+			z-index: 4;
+		}
+
+		/* ── Línea conectora (dot → name-box) ── */
+		.connector-line {
+			position: absolute;
+			/* left, top, height fijados en JS */
+			transform: translateX(-50%);
+			width: 1px;
+			background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-d) 100%);
+			opacity: .45;
+			z-index: 3;
+			transition: opacity var(--trans);
+		}
+
+		/* ══════════════════════════════════════════════
+       NAME-BOX  ← elemento principal de interacción
+    ══════════════════════════════════════════════ */
+		.name-box {
+			position: absolute;
+			/* left y top fijados en JS */
+			transform: translateX(-50%);
+			background: var(--bg-card);
+			border: 1px solid var(--gold-d);
+			border-radius: var(--r);
+			padding: 4px 10px 3px;
+			cursor: pointer;
+			white-space: nowrap;
+			z-index: 10;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1px;
+			transition: border-color var(--trans), box-shadow var(--trans), transform var(--trans);
+			user-select: none;
+		}
+
+		.nb-name {
+			font-family: var(--ff-display);
+			font-size: .66rem;
+			font-weight: 700;
+			color: var(--cream);
+			transition: color var(--trans), text-shadow var(--trans);
+			line-height: 1.2;
+		}
+
+		.nb-year {
+			font-size: .54rem;
+			color: var(--gold);
+			font-family: var(--ff-body);
+			transition: color var(--trans);
+		}
+
+		/* HOVER: brillo rojo fosforescente */
+		.name-box:hover {
+			border-color: var(--red-glow);
+			box-shadow: 0 0 10px rgba(255, 59, 59, .45), 0 0 22px rgba(255, 59, 59, .2);
+			transform: translateX(-50%) translateY(-2px);
+		}
+
+		.name-box:hover .nb-name {
+			color: var(--red-glow);
+			text-shadow: 0 0 8px rgba(255, 59, 59, .7);
+		}
+
+		.name-box:hover .nb-year {
+			color: #ff8080;
+		}
+
+		/* Cuando se hace hover al name-box, el dot y conector también brillan
+       (JS añade .highlighted al dot y conector correspondientes) */
+		.dot-circle.highlighted {
+			border-color: var(--red-glow) !important;
+			box-shadow: 0 0 0 4px rgba(255, 59, 59, .18), 0 0 12px rgba(255, 59, 59, .4) !important;
+		}
+
+		.connector-line.highlighted {
+			opacity: .9 !important;
+		}
+
+		/* ══════════════════════════════════════════════
+       ESTADO VACÍO
+    ══════════════════════════════════════════════ */
+		.empty-state {
+			text-align: center;
+			padding: 4rem 2rem;
+			position: relative;
+			z-index: 1;
+		}
+
+		.empty-state .e-icon {
+			font-size: 3rem;
+			opacity: .28;
+			margin-bottom: 1rem;
+		}
+
+		.empty-state h2 {
+			font-family: var(--ff-display);
+			font-size: 1.4rem;
+			color: var(--gold);
+			margin-bottom: .6rem;
+		}
+
+		.empty-state p {
+			color: var(--cream-d);
+			max-width: 400px;
+			margin: 0 auto;
+			font-size: .95rem;
+		}
+
+		.empty-state code {
+			background: rgba(201, 168, 76, .08);
+			border: 1px solid var(--gold-d);
+			padding: .1em .35em;
+			border-radius: 3px;
+			font-size: .85em;
+			color: var(--gold);
+		}
+
+		/* ══════════════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════════════ */
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 1000;
+			background: rgba(4, 6, 18, .88);
+			backdrop-filter: blur(6px);
+			-webkit-backdrop-filter: blur(6px);
+			align-items: center;
+			justify-content: center;
+			padding: 1rem;
+		}
+
+		.modal-overlay.active {
+			display: flex;
+			animation: fadeOv .25s ease;
+		}
+
+		@keyframes fadeOv {
+			from {
+				opacity: 0
+			}
+
+			to {
+				opacity: 1
+			}
+		}
+
+		.modal-card {
+			background: var(--bg-modal);
+			border: 1px solid var(--gold-d);
+			border-radius: var(--r);
+			max-width: 560px;
+			width: 100%;
+			max-height: 90vh;
+			overflow-y: auto;
+			position: relative;
+			box-shadow: 0 0 0 1px rgba(201, 168, 76, .07), 0 0 40px rgba(201, 168, 76, .09), 0 24px 60px rgba(0, 0, 0, .65);
+			animation: cardPop .3s cubic-bezier(.34, 1.28, .64, 1);
+			scrollbar-width: thin;
+			scrollbar-color: var(--gold-d) transparent;
+		}
+
+		.modal-card::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.modal-card::-webkit-scrollbar-thumb {
+			background: var(--gold-d);
+		}
+
+		@keyframes cardPop {
+			from {
+				opacity: 0;
+				transform: scale(.9) translateY(18px)
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1) translateY(0)
+			}
+		}
+
+		/* Botón cerrar */
+		.modal-close {
+			position: absolute;
+			top: .7rem;
+			right: .7rem;
+			z-index: 20;
+			background: rgba(7, 9, 26, .75);
+			border: 1px solid var(--gold-d);
+			color: var(--cream-d);
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: .9rem;
+			transition: all var(--trans);
+		}
+
+		.modal-close:hover {
+			color: var(--cream);
+			border-color: var(--gold);
+			background: rgba(201, 168, 76, .15);
+		}
+
+		/* ── PERFIL (header del modal, tipo red social) ── */
+		.modal-profile {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 2.2rem 1rem 1.2rem;
+			background: linear-gradient(160deg, #080c1c 0%, #141e30 100%);
+			border-bottom: 1px solid var(--gold-d);
+			position: relative;
+		}
+
+		.modal-profile::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(ellipse at 50% 0%, rgba(201, 168, 76, .07) 0%, transparent 65%);
+			pointer-events: none;
+		}
+
+		/* anillo del avatar */
+		.avatar-ring {
+			width: 110px;
+			height: 110px;
+			border-radius: 50%;
+			border: 3px solid var(--gold);
+			overflow: hidden;
+			box-shadow: 0 0 0 5px rgba(201, 168, 76, .11), 0 0 22px rgba(201, 168, 76, .2);
+			background: #080c1a;
+			flex-shrink: 0;
+			position: relative;
+			z-index: 1;
+		}
+
+		.avatar-ring img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			object-position: center top;
+			filter: sepia(10%) contrast(1.06);
+		}
+
+		.avatar-placeholder {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 3rem;
+			opacity: .13;
+			background: linear-gradient(135deg, #0c1020, #151e30);
+		}
+
+		.profile-name {
+			font-family: var(--ff-display);
+			font-size: clamp(1.3rem, 4vw, 1.85rem);
+			font-weight: 700;
+			color: var(--cream);
+			text-align: center;
+			margin-top: .9rem;
+			position: relative;
+			z-index: 1;
+			line-height: 1.15;
+		}
+
+		.profile-era {
+			font-style: italic;
+			color: var(--gold);
+			font-size: .7rem;
+			letter-spacing: .18em;
+			text-transform: uppercase;
+			margin-top: .28rem;
+			position: relative;
+			z-index: 1;
+		}
+
+		/* ── Cuerpo del modal ── */
+		.modal-body {
+			padding: 1.4rem 1.5rem 1.8rem;
+		}
+
+		/* Fechas */
+		.modal-dates {
+			display: flex;
+			flex-wrap: wrap;
+			gap: .4rem .9rem;
+			margin-bottom: 1.1rem;
+		}
+
+		.date-chip {
+			font-size: .75rem;
+			color: var(--cream-d);
+			display: flex;
+			align-items: center;
+			gap: .35rem;
+		}
+
+		.date-chip strong {
+			color: var(--gold);
+			font-weight: 600;
+		}
+
+		/* Regla ornamental */
+		.modal-rule {
+			height: 1px;
+			background: linear-gradient(to right, var(--gold-d) 0%, transparent 100%);
+			margin-bottom: 1.1rem;
+			opacity: .4;
+		}
+
+		/* Etiqueta de sección */
+		.section-lbl {
+			font-family: var(--ff-display);
+			font-style: italic;
+			font-size: .75rem;
+			color: var(--gold);
+			letter-spacing: .1em;
+			text-transform: uppercase;
+			margin-bottom: .55rem;
+		}
+
+		/* Contexto */
+		.modal-context {
+			color: var(--cream-d);
+			font-size: 1.04rem;
+			line-height: 1.78;
+			margin-bottom: 1.3rem;
+		}
+
+		/* ══════════════════════════════════════════════
+       BLOQUE ESPECIAL DE FÓRMULA
+       ─────────────────────────────────────────────
+       Uso en el campo 'formulas':
+         { titulo: "Nombre", latex: "tu_{formula}" }
+       El campo 'latex' va dentro de \[ ... \]
+       (fórmula en bloque centrada).
+
+       Uso inline en el campo 'contexto':
+         \( formula \)   → inline
+         \[ formula \]   → bloque centrado
+       Recuerda usar String.raw`...` para el contexto.
+    ══════════════════════════════════════════════ */
+		.formula-block {
+			background: var(--bg-formula);
+			border-left: 3px solid var(--gold);
+			border-radius: 0 var(--r) var(--r) 0;
+			padding: .85rem 1.2rem .85rem 1.05rem;
+			margin: .7rem 0;
+			position: relative;
+			overflow-x: auto;
+		}
+
+		.formula-block::before {
+			content: '∑';
+			position: absolute;
+			top: .4rem;
+			right: .8rem;
+			font-size: 1.4rem;
+			color: var(--gold);
+			opacity: .07;
+			font-family: serif;
+			pointer-events: none;
+		}
+
+		.fb-title {
+			font-style: italic;
+			color: var(--gold);
+			font-size: .72rem;
+			letter-spacing: .08em;
+			text-transform: uppercase;
+			margin-bottom: .45rem;
+		}
+
+		.fb-content {
+			color: var(--cream);
+			font-size: 1rem;
+			text-align: center;
+			padding: .15rem 0;
+		}
+
+		/* ══════════════════════════════════════════════
+       GALERÍA DE IMÁGENES EN EL MODAL
+       ─────────────────────────────────────────────
+       Uso en el campo 'imagenes':
+         [{ src: "imagenes/diagrama.jpg", caption: "Descripción" }]
+       Al hacer clic en una imagen se abre en pantalla completa.
+    ══════════════════════════════════════════════ */
+		.modal-gallery-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+			gap: .6rem;
+			margin-top: .55rem;
+			margin-bottom: 1.2rem;
+		}
+
+		.gallery-thumb {
+			width: 100%;
+			aspect-ratio: 4/3;
+			object-fit: cover;
+			border: 1px solid var(--gold-d);
+			border-radius: var(--r);
+			cursor: zoom-in;
+			opacity: .85;
+			transition: opacity var(--trans), border-color var(--trans), transform var(--trans);
+			filter: sepia(8%) contrast(1.05);
+		}
+
+		.gallery-thumb:hover {
+			opacity: 1;
+			border-color: var(--gold);
+			transform: scale(1.04);
+		}
+
+		/* ══════════════════════════════════════════════
+       ENLACES EN EL MODAL
+       ─────────────────────────────────────────────
+       Uso en el campo 'enlaces':
+         [{ url: "https://...", texto: "Leer más" }]
+    ══════════════════════════════════════════════ */
+		.modal-link {
+			display: flex;
+			align-items: center;
+			gap: .45rem;
+			color: var(--gold);
+			font-size: .9rem;
+			text-decoration: none;
+			padding: .35rem 0;
+			border-bottom: 1px solid rgba(109, 87, 32, .3);
+			transition: color var(--trans);
+		}
+
+		.modal-link:last-child {
+			border-bottom: none;
+		}
+
+		.modal-link::before {
+			content: '↗';
+			font-size: .8rem;
+			opacity: .7;
+		}
+
+		.modal-link:hover {
+			color: var(--gold-l);
+		}
+
+		/* ══════════════════════════════════════════════
+       LIGHTBOX (imagen a pantalla completa)
+    ══════════════════════════════════════════════ */
+		.lightbox {
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 2000;
+			align-items: center;
+			justify-content: center;
+			padding: 1.5rem;
+		}
+
+		.lightbox.active {
+			display: flex;
+			animation: fadeOv .22s ease;
+		}
+
+		.lb-backdrop {
+			position: absolute;
+			inset: 0;
+			background: rgba(2, 4, 14, .95);
+			cursor: zoom-out;
+		}
+
+		.lb-content {
+			position: relative;
+			z-index: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: .7rem;
+			max-width: 92vw;
+			max-height: 92vh;
+		}
+
+		#lb-img {
+			max-width: 100%;
+			max-height: 80vh;
+			object-fit: contain;
+			border: 1px solid var(--gold-d);
+			border-radius: var(--r);
+			box-shadow: 0 0 40px rgba(0, 0, 0, .7);
+		}
+
+		#lb-caption {
+			color: var(--cream-d);
+			font-size: .82rem;
+			font-style: italic;
+			text-align: center;
+			max-width: 500px;
+		}
+
+		.lb-close {
+			position: absolute;
+			top: -2.5rem;
+			right: 0;
+			background: rgba(7, 9, 26, .8);
+			border: 1px solid var(--gold-d);
+			color: var(--cream-d);
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: .9rem;
+			transition: all var(--trans);
+		}
+
+		.lb-close:hover {
+			color: var(--cream);
+			border-color: var(--gold);
+		}
+
+		/* ══════════════════════════════════════════════
+       PIE DE PÁGINA
+    ══════════════════════════════════════════════ */
+		.site-footer {
+			position: relative;
+			z-index: 1;
+			text-align: center;
+			padding: .5rem 1.5rem 3rem;
+		}
+
+		.site-footer p {
+			font-size: .72rem;
+			color: var(--cream-d);
+			opacity: .4;
+		}
+
+		.site-footer span {
+			color: var(--gold);
+			opacity: 1;
+		}
+
+		/* ══════════════════════════════════════════════
+       RESPONSIVE — DESKTOP ≥ 768px
+    ══════════════════════════════════════════════ */
+		@media (min-width: 768px) {
+			.site-header {
+				padding: 4.5rem 2rem 2.5rem;
+			}
+
+			.avatar-ring {
+				width: 130px;
+				height: 130px;
+			}
+
+			.modal-body {
+				padding: 1.75rem 2rem 2.2rem;
+			}
+		}
+
+		@media (min-width: 1024px) {
+			.tl-scroll {
+				padding: 0 5rem;
+			}
+
+			.modal-card {
+				max-width: 620px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- ══════════════════════════════════════════════
+     ENCABEZADO
+     Edita el título y la descripción aquí si quieres.
+════════════════════════════════════════════════ -->
+	<header class="site-header">
+		<span class="over">Bohorquez Callejas Angel Alejandro</span>
+		<h1>Historia de la <em>integral</em><br>en linea del tiempo</h1>
+		<p class="lead">
+			Una travesía por los matemáticos que definieron la integral,
+			hasta lo que hoy este concepto fundamental en el cálculo. Desde sus orígenes en la antigüedad
+		</p>
+		<div class="ornament">
+			<div class="diamond"></div>
+		</div>
+	</header>
+
+	<!-- ══════════════════════════════════════════════
+     SECCIÓN LÍNEA DEL TIEMPO
+════════════════════════════════════════════════ -->
+	<section class="timeline-section">
+
+		<!-- Control de zoom -->
+		<div class="zoom-wrap">
+			<span class="zoom-label">ZOOM</span>
+			<input type="range" id="zoom-slider" min="0" max="5" step="1" value="0">
+			<span class="zoom-value" id="zoom-value">0×</span>
+		</div>
+
+		<!-- Scroll horizontal -->
+		<div class="tl-scroll" id="tl-scroll">
+			<div class="tl-inner" id="tl-inner"></div>
+		</div>
+
+		<!-- Estado vacío (solo visible cuando matematicos[] está vacío) -->
+		<div class="empty-state" id="empty-state" style="display:none">
+			<div class="e-icon">📐</div>
+			<h2>La línea del tiempo está vacía</h2>
+			<p>Busca el arreglo <code>matematicos</code> en el código JS y agrega tu primer matemático.</p>
+		</div>
+
+	</section>
+
+	<!-- ══════════════════════════════════════════════
+     MODAL (popup al hacer clic en un nombre)
+     No necesitas editar este bloque.
+════════════════════════════════════════════════ -->
+	<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-pname">
+
+		<div class="modal-card">
+			<button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
+
+			<!-- Perfil tipo red social -->
+			<div class="modal-profile" id="modal-profile">
+				<!-- JS llena: avatar + nombre + época -->
+			</div>
+
+			<!-- Cuerpo -->
+			<div class="modal-body">
+
+				<!-- Fechas -->
+				<div class="modal-dates" id="modal-dates"></div>
+				<div class="modal-rule"></div>
+
+				<!-- Descripción -->
+				<p class="section-lbl">El problema que buscaba resolver</p>
+				<div class="modal-context" id="modal-context"></div>
+
+				<!-- Fórmulas (generadas por JS desde el campo 'formulas') -->
+				<div id="modal-formulas"></div>
+
+				<!-- Galería de imágenes (generada por JS desde el campo 'imagenes') -->
+				<div id="modal-gallery"></div>
+
+				<!-- Enlaces (generados por JS desde el campo 'enlaces') -->
+				<div id="modal-links"></div>
+
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Lightbox para imágenes -->
+	<div class="lightbox" id="lightbox">
+		<div class="lb-backdrop" id="lb-backdrop"></div>
+		<div class="lb-content">
+			<button class="lb-close" id="lb-close">✕</button>
+			<img id="lb-img" src="" alt="">
+			<p id="lb-caption"></p>
+		</div>
+	</div>
+
+	<!-- ══════════════════════════════════════════════
+     PIE
+════════════════════════════════════════════════ -->
+	<footer class="site-footer">
+		<p>Haz clic en el <span>nombre</span> de cualquier matemático para explorar su historia.</p>
+	</footer>
+
+	<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════ -->
+	<script>
+
+		/* ══════════════════════════════════════════════════════════════════
+		   ██████╗  █████╗ ████████╗ ██████╗ ███████╗
+		   ██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔════╝
+		   ██║  ██║███████║   ██║   ██║   ██║███████╗
+		   ██║  ██║██╔══██║   ██║   ██║   ██║╚════██║
+		   ██████╔╝██║  ██║   ██║   ╚██████╔╝███████║
+		   ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝
+		
+		   CÓMO AGREGAR UN MATEMÁTICO
+		   ──────────────────────────────────────────────────────────────
+		   Copia el bloque de ejemplo, quita los  /* y    que lo rodean,
+		   y rellena los campos. Las fotos van en la carpeta  imagenes/
+		
+		   DESCRIPCIÓN DE CAMPOS
+		   ──────────────────────
+		   id            → Número único. Incrementa por cada persona.
+		   nombre        → Nombre completo.
+		   año           → Año del DESCUBRIMIENTO (se grafica en la línea).
+						   Años a.C. → número negativo: -287 = 287 a.C.
+		   nacimiento    → Año de nacimiento (opcional, null si no sabes).
+		   fallecimiento → Año de muerte (null = desconocido, "?" = incierto).
+		   imagen        → Ruta a la foto desde index.html, ej: "imagenes/newton.jpg"
+						   Si no tienes foto: null
+		   contexto      → Texto descriptivo. USA SIEMPRE  String.raw`...`
+						   para que LaTeX funcione correctamente.
+						   LaTeX inline  → \( formula \)
+						   LaTeX bloque  → \[ formula \]
+						   HTML básico   → <em>, <strong>, <br> también funcionan.
+		   formulas      → (opcional) Array de bloques de fórmula destacada.
+						   { titulo: "Nombre", latex: "tu_{formula}" }
+						   Pon \\ para cada \ en la fórmula:
+							 \frac → \\frac,  \pi → \\pi,  \sum → \\sum, etc.
+		   imagenes      → (opcional) Array de imágenes adicionales con lightbox.
+						   { src: "imagenes/diagrama.jpg", caption: "Descripción" }
+		   enlaces       → (opcional) Array de links de referencia.
+						   { url: "https://...", texto: "Texto del enlace" }
+		
+		   ESTRUCTURA COMPLETA DE EJEMPLO:
+		   ─────────────────────────────────
+		   {
+			 id:            1,
+			 nombre:        "Arquímedes",
+			 nacimiento:    -287,
+			 fallecimiento: -212,
+			 imagen:        "imagenes/arquimedes.jpg",
+			 contexto:      String.raw`Arquímedes quería calcular el área
+			   de figuras curvas. Su método: llenar la figura con
+			   \( \triangle \) cada vez más pequeños hasta
+			   \( \frac{4}{3} \) del primer triángulo inscrito.`,
+			 formulas: [
+			   { titulo: "Área del segmento parabólico",
+				 latex: "S = \\frac{4}{3} S_0" }
+			 ],
+			 imagenes: [
+			   { src: "imagenes/metodo.jpg", caption: "El método de exhausción" }
+			 ],
+			 enlaces: [
+			   { url: "https://es.wikipedia.org/wiki/Arqu%C3%ADmedes",
+				 texto: "Arquímedes en Wikipedia" }
+			 ]
+		   }
+		
+		══════════════════════════════════════════════════════════════════ */
+
+
+		/* ══════════════════════════════════════════════
+		   ↓↓↓  AGREGA LOS MATEMÁTICOS AQUÍ  ↓↓↓
+		══════════════════════════════════════════════ */
+		const matematicos = [
+
+			{
+				id: 1,
+				nombre: "Arquímedes",
+				nacimiento: -287,
+				fallecimiento: -212,
+				imagen: "imagenes/arquimedes.png",
+				contexto: String.raw`Arquímedes quería calcular el área exacta
+      de figuras delimitadas por curvas, algo imposible con la geometría
+      clásica. Su estrategia: llenar el segmento parabólico con
+      \( \triangle \)s sucesivos cada vez más pequeños. Primero inscribía
+      un triángulo grande; en los huecos restantes inscribía dos más
+      pequeños (cada uno con \( \frac{1}{4} \) del área del anterior);
+      luego cuatro aún más pequeños, y así indefinidamente.
+      Al sumar esta serie geométrica infinita demostró que el área total
+      es exactamente \( \frac{4}{3} \) del primer triángulo.`,
+				formulas: [
+					{
+						titulo: "Serie geométrica infinita",
+						latex: "\\sum_{n=0}^{\\infty} \\frac{1}{4^n} = \\frac{4}{3}"
+					},
+					{
+						titulo: "Área del segmento parabólico",
+						latex: "S = \\frac{4}{3}\\, S_0"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/arquimedes.png", caption: "El método de exhausción" }
+				],
+				enlaces: []
+			},
+
+			{
+				id: 2,
+				nombre: "Cavalieri",
+				nacimiento: 1598,
+				fallecimiento: 1647,
+				imagen: "imagenes/cavalieri.png",
+				contexto: String.raw`Bonaventura Cavalieri buscaba un método
+      <em>directo</em> para calcular áreas y volúmenes sin la laboriosa
+      doble reducción al absurdo del método griego. Su solución fue el
+      <em>método de los indivisibles</em>: concebir un área como un número
+      infinito de segmentos paralelos y un volumen como una pila infinita
+      de secciones planas. Con este método demostró que
+      \( \int_0^a x^n\,dx = \frac{a^{n+1}}{n+1} \)
+      para \( n = 1, 2, \ldots, 9 \).`,
+				formulas: [
+					{
+						titulo: "Cuadratura de la potencia",
+						latex: "\\int_0^a x^n\\,dx = \\frac{a^{n+1}}{n+1}"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/2.png", caption: "El área como un tejido de líneas" }
+				],
+				enlaces: []
+			},
+
+			{
+				id: 3,
+				nombre: "Pierre de Fermat",
+				nacimiento: 1601,
+				fallecimiento: 1665,
+				imagen: "imagenes/fermat.png",
+				contexto: String.raw`Fermat enfrentaba dos problemas: encontrar el área bajo
+      curvas del tipo \( y = x^n \) (cuadraturas) y determinar la tangente a
+      una curva en un punto dado (lo que hoy llamamos derivada). Para las
+      cuadraturas usó rectángulos cuyas bases estaban en <em>progresión
+      geométrica</em>, un truco que le permitió extender los resultados de
+      Cavalieri a hipérbolas y parábolas generalizadas
+      \( x^n y^m = 1 \). Para las tangentes inventó su método de
+      <em>adigualdad</em>: sustituir \( x \) por \( x + e \), simplificar,
+      dividir entre \( e \) y luego hacer \( e = 0 \), obteniendo así la
+      pendiente. Este procedimiento es esencialmente lo que hoy llamamos
+      derivada, razón por la que Lagrange consideró a Fermat el verdadero
+      inventor del cálculo.`,
+				formulas: [
+					{
+						titulo: "Pendiente de la tangente (método de Fermat)",
+						latex: "\\lim_{e \\to 0} \\frac{f(a+e) - f(a)}{e}"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/3.png", caption: "Rectángulos que se vuelven más delgados" }
+				],
+				enlaces: [
+					{ url: "https://es.wikipedia.org/wiki/Pierre_de_Fermat", texto: "Fermat — Wikipedia" }
+				]
+			},
+
+			{
+				id: 4,
+				nombre: "John Wallis",
+				nacimiento: 1616,
+				fallecimiento: 1703,
+				imagen: "imagenes/wallis.png",
+				contexto: String.raw`Wallis quería generalizar y aritmetizar el método de
+      los indivisibles de Cavalieri. En su <em>Arithmetica Infinitorum</em> (1655)
+      estudió la razón entre el área bajo \( y = x^k \) y el rectángulo que la
+      contiene, calculando sumas del tipo
+      \( 0^k + 1^k + 2^k + \cdots + n^k \) para varios valores de \( k \).
+      Observó que esta razón siempre tiende a \( \frac{1}{k+1} \) cuando
+      \( n \to \infty \), y por atrevida interpolación extendió el resultado
+      a exponentes racionales. Fue Wallis quien introdujo el símbolo
+      \( \infty \) para el infinito en 1655, y su razonamiento fue la base
+      que usó Newton para descubrir el teorema del binomio.`,
+				formulas: [
+					{
+						titulo: "Cuadratura general de Wallis",
+						latex: "\\int_0^a x^k\\,dx = \\frac{a^{k+1}}{k+1}"
+					},
+					{
+						titulo: "Fórmula de Wallis para π",
+						latex: "\\frac{\\pi}{2} = \\frac{2}{1}\\cdot\\frac{2}{3}\\cdot\\frac{4}{3}\\cdot\\frac{4}{5}\\cdots"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/3.png", caption: "Rectángulos que se vuelven más delgados" }
+				],
+				enlaces: [
+					{ url: "https://es.wikipedia.org/wiki/John_Wallis", texto: "Wallis — Wikipedia" }
+				]
+			},
+
+			{
+				id: 5,
+				nombre: "Isaac Barrow",
+				nacimiento: 1630,
+				fallecimiento: 1677,
+				imagen: "imagenes/barrow.png",
+				contexto: String.raw`Barrow, maestro de Newton, trabajó tanto en tangentes
+      como en cuadraturas y estuvo muy cerca de descubrir que son operaciones
+      inversas. Su herramienta principal fue el <em>triángulo diferencial</em>:
+      dado un punto \( P \) de una curva y un punto cercano \( P_1 \), el
+      triángulo formado por el arco \( PP_1 \), el incremento horizontal
+      \( e \) y el incremento vertical \( a \) da la pendiente como \( a/e \).
+      En su proposición más importante demostró geométricamente que si
+      \( g(x) \) representa el área bajo \( f(x) \) desde \( 0 \) hasta
+      \( x \), entonces la pendiente de la tangente a \( g \) en cualquier
+      punto es exactamente \( f(x) \), el antecedente directo del
+      Teorema Fundamental del Cálculo.`,
+				formulas: [
+					{
+						titulo: "Resultado fundamental de Barrow",
+						latex: "\\frac{d}{dx}\\int_0^x f(t)\\,dt = f(x)"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/4.png", caption: "El triángulo que se aplasta hasta ser tangente" }
+				],
+				enlaces: [
+					{ url: "https://es.wikipedia.org/wiki/Isaac_Barrow", texto: "Barrow — Wikipedia" }
+				]
+			},
+
+
+			{
+				id: 6,
+				nombre: "Isaac Newton",
+				nacimiento: 1643,
+				fallecimiento: 1727,
+				imagen: "imagenes/newton.png",
+				contexto: String.raw`Newton quería un método <em>general</em> que unificara
+      el cálculo de tangentes, máximos y mínimos, áreas y longitudes de curvas.
+      Durante los años mirabiles 1665–1666, encerrado por la peste, inventó el
+      <em>cálculo de fluxiones</em>: concibió las variables como cantidades que
+      fluyen en el tiempo, llamó <em>fluxión</em> a su velocidad de cambio
+      (nuestra derivada) y demostró que calcular áreas (integrar) es la
+      operación inversa de calcular fluxiones (derivar). Fue el primero en
+      enunciar explícitamente el <strong>Teorema Fundamental del Cálculo</strong>.
+      También descubrió el teorema del binomio y las series infinitas como
+      herramienta universal de análisis.`,
+				formulas: [
+					{
+						titulo: "Teorema Fundamental del Cálculo (Newton, 1666)",
+						latex: "\\frac{d}{dx}\\int_a^x f(t)\\,dt = f(x)"
+					},
+					{
+						titulo: "Serie binomial de Newton",
+						latex: "(1+x)^n = \\sum_{k=0}^{\\infty} \\binom{n}{k} x^k"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/5.png", caption: "El área que crece y su pendiente" }
+				],
+				enlaces: [
+					{ url: "https://es.wikipedia.org/wiki/Isaac_Newton", texto: "Newton — Wikipedia" }
+				]
+			},
+
+			{
+				id: 7,
+				nombre: "Gottfried Leibniz",
+				nacimiento: 1646,
+				fallecimiento: 1716,
+				imagen: "imagenes/leibniz.png",
+				contexto: String.raw`Leibniz llegó al cálculo desde un camino distinto al
+      de Newton: las <em>sucesiones de diferencias</em>. Observó que sumar
+      diferencias consecutivas recupera la sucesión original, y trasladó esta
+      idea a la geometría: si \( dy \) es la diferencia infinitesimal entre
+      dos ordenadas y \( dx \) entre dos abscisas, la tangente tiene pendiente
+      \( dy/dx \), y el área bajo la curva es la suma \( \int y\,dx \).
+      En manuscritos de octubre–noviembre de 1675 introdujo los símbolos
+      \( d \) y \( \int \) (una <em>s</em> alargada de <em>summa</em>) que
+      usamos hasta hoy. Su notación, más clara que la de Newton, fue la que
+      se impuso en toda Europa y es la que aparece en todos los libros de
+      cálculo actuales.`,
+				formulas: [
+					{
+						titulo: "Regla del producto de Leibniz",
+						latex: "d(xy) = x\\,dy + y\\,dx"
+					},
+					{
+						titulo: "Notación de Leibniz para la integral",
+						latex: "\\int_a^b f(x)\\,dx = F(b) - F(a)"
+					}
+				],
+				imagenes: [
+					{ src: "imagenes/5.png", caption: "El área que crece y su pendiente" }
+				],
+				enlaces: [
+					{ url: "https://es.wikipedia.org/wiki/Gottfried_Leibniz", texto: "Leibniz — Wikipedia" }
+				]
+			}
+
+			/*── FIN DEL EJEMPLO ── */
+
+			// ← Agrega tus matemáticos aquí (sin los bloques de comentario del ejemplo)
+
+		];
+		/* ══════════════════════════════════════════════
+		   FIN DEL ARREGLO
+		══════════════════════════════════════════════ */
+
+
+		/* ════════════════════════════════════════════════════════════════
+		   LÓGICA — No necesitas editar debajo de esta línea.
+		════════════════════════════════════════════════════════════════ */
+
+		const tlInner = document.getElementById('tl-inner');
+		const tlScroll = document.getElementById('tl-scroll');
+		const emptyEl = document.getElementById('empty-state');
+
+		// ── Constantes de layout ──────────────────────────────────────
+		const DOT_D = 13;   // diámetro del punto (px)
+		const DOT_R = DOT_D / 2;
+		const BOX_H = 30;   // alto del name-box (px)
+		const CONN_BASE = 20;   // largo del conector para el carril 0 (px)
+		const LANE_H = 54;   // incremento de alto por carril (px)
+		const TICK_AREA = 26;   // espacio bajo la línea para los años (px)
+		const TOP_PAD = 16;   // padding sobre el name-box más alto
+		const NAME_SEP_PX = 108;  // separación mínima entre centros de name-box (px)
+
+		// ── Variables de estado ───────────────────────────────────────
+		let currentZoom = 1;
+
+		// ── Utilidades ────────────────────────────────────────────────
+
+		/** Formatea un año: negativos como "300 a.C.", null como "presente", "?" como "?" */
+		function fmtYear(y) {
+			if (y === null || y === undefined) return 'presente';
+			if (y === '?') return '?';
+			const n = Number(y);
+			return n < 0 ? `${Math.abs(n)} a.C.` : String(n);
+		}
+
+		/** Devuelve una descripción de época según el año */
+		function getEpoca(y) {
+			const n = Number(y);
+			if (n < -400) return 'Antigüedad Clásica';
+			if (n < 200) return 'Mundo Antiguo';
+			if (n < 500) return 'Antigüedad Tardía';
+			if (n < 1000) return 'Alta Edad Media';
+			if (n < 1400) return 'Baja Edad Media';
+			if (n < 1600) return 'Renacimiento';
+			if (n < 1700) return 'Siglo XVII';
+			if (n < 1800) return 'Siglo XVIII';
+			if (n < 1900) return 'Siglo XIX';
+			if (n < 2000) return 'Siglo XX';
+			return 'Siglo XXI';
+		}
+
+		/** Obtiene el año principal de un matemático (campo 'año', o 'nacimiento' como fallback) */
+		function getMainYear(m) {
+			return m.nacimiento;
+		}
+
+		// ── Algoritmo de asignación de carriles ──────────────────────
+		/**
+		 * Asigna un carril (lane) a cada matemático para evitar superposición
+		 * de name-boxes. El carril 0 es el más cercano a la línea (el más bajo).
+		 * Los matemáticos más antiguos que queden sin espacio en el carril 0
+		 * se colocan en carriles superiores (carril 1, 2, ...).
+		 *
+		 * Orden: cronológico, así los más antiguos tienen preferencia
+		 * por el carril más bajo.
+		 */
+		function assignLanes(sorted, toPx) {
+			const laneLastPx = []; // posición px del último name-box por carril
+			sorted.forEach(m => {
+				const px = toPx(getMainYear(m));
+				let lane = -1;
+				for (let l = 0; l < laneLastPx.length; l++) {
+					if (px - laneLastPx[l] >= NAME_SEP_PX) {
+						lane = l;
+						laneLastPx[l] = px;
+						break;
+					}
+				}
+				if (lane === -1) {
+					lane = laneLastPx.length;
+					laneLastPx.push(px);
+				}
+				m._lane = lane;
+			});
+		}
+
+		// ── Construcción de la línea del tiempo ──────────────────────
+		function buildTimeline(zoomFactor) {
+			zoomFactor = zoomFactor || 1;
+			currentZoom = zoomFactor;
+
+			tlInner.innerHTML = '';
+			// Limpiar highlighted
+			document.querySelectorAll('.dot-circle.highlighted, .connector-line.highlighted')
+				.forEach(el => el.classList.remove('highlighted'));
+
+			if (matematicos.length === 0) {
+				emptyEl.style.display = 'block';
+				tlScroll.style.display = 'none';
+				return;
+			}
+			emptyEl.style.display = 'none';
+			tlScroll.style.display = 'block';
+
+			// Ordenar cronológicamente
+			const sorted = [...matematicos].sort((a, b) => getMainYear(a) - getMainYear(b));
+
+			// Rango de años con margen de ±25
+			const years = sorted.map(m => getMainYear(m));
+			const minYear = Math.min(...years) - 25;
+			const maxYear = Math.max(...years) + 25;
+			const span = maxYear - minYear;
+
+			// Ancho total
+			const containerW = tlScroll.clientWidth || 900;
+			let totalW;
+			if (zoomFactor <= 1) {
+				// Sin scroll: el timeline cabe en el contenedor
+				totalW = containerW;
+				tlScroll.style.overflowX = 'hidden';
+			} else {
+				// Con scroll: expansión basada en zoom
+				totalW = Math.round(Math.max(containerW * 1.4, sorted.length * 160) * zoomFactor);
+				tlScroll.style.overflowX = 'auto';
+			}
+
+			// Funciones de conversión
+			const toPercent = y => ((y - minYear) / span) * 100;
+			const toPx = y => ((y - minYear) / span) * totalW;
+
+			// Asignar carriles
+			assignLanes(sorted, toPx);
+			const maxLane = Math.max(0, ...sorted.map(m => m._lane));
+
+			// Calcular altura del timeline
+			// lineY = posición Y del centro de la línea desde el top de tl-inner
+			const lineY = TOP_PAD + BOX_H + CONN_BASE + maxLane * LANE_H + DOT_R;
+			const tlH = lineY + DOT_R + TICK_AREA;
+
+			tlInner.style.minWidth = totalW + 'px';
+			tlInner.style.height = tlH + 'px';
+
+			// ── Línea principal ──────────────────────────────────────
+			const line = document.createElement('div');
+			line.className = 'tl-line';
+			line.style.top = (lineY - 1) + 'px';  // centro de la línea de 2px
+			tlInner.appendChild(line);
+
+			// ── Ticks de año ────────────────────────────────────────
+			const tickInterval = span > 600 ? 100 : span > 300 ? 50 : 25;
+			let tick = Math.ceil(minYear / tickInterval) * tickInterval;
+			while (tick <= maxYear) {
+				const t = document.createElement('div');
+				t.className = 'tl-tick';
+				t.style.left = toPercent(tick) + '%';
+				t.style.top = (lineY + 1) + 'px';
+				t.innerHTML = `<div class="tk-line"></div><div class="tk-year">${fmtYear(tick)}</div>`;
+				tlInner.appendChild(t);
+				tick += tickInterval;
+			}
+
+			// ── Matemáticos: dot + conector + name-box ───────────────
+			sorted.forEach(m => {
+				const leftPct = toPercent(getMainYear(m));
+				const lane = m._lane;
+				const connH = CONN_BASE + lane * LANE_H;   // altura del conector
+				const dotTopY = lineY - DOT_R;               // top del punto
+				const connTopY = dotTopY - connH;             // top del conector
+				const boxTopY = connTopY - BOX_H;            // top del name-box
+
+				const mid = String(m.id);  // identificador para enlazar dot ↔ conector ↔ name-box
+
+				// Punto (dot)
+				const dot = document.createElement('div');
+				dot.className = 'dot-circle';
+				dot.dataset.mid = mid;
+				dot.style.left = leftPct + '%';
+				dot.style.top = dotTopY + 'px';
+				dot.style.width = DOT_D + 'px';
+				dot.style.height = DOT_D + 'px';
+				dot.addEventListener('click', () => openModal(m));
+				tlInner.appendChild(dot);
+
+				// Conector
+				const conn = document.createElement('div');
+				conn.className = 'connector-line';
+				conn.dataset.mid = mid;
+				conn.style.left = leftPct + '%';
+				conn.style.top = connTopY + 'px';
+				conn.style.height = connH + 'px';
+				tlInner.appendChild(conn);
+
+				// Name-box
+				const box = document.createElement('div');
+				box.className = 'name-box';
+				box.dataset.mid = mid;
+				box.style.left = leftPct + '%';
+				box.style.top = boxTopY + 'px';
+
+				const shortName = m.nombre.split(' ').slice(-1)[0];
+				box.innerHTML = `<span class="nb-name">${m.nombre.split(' ').length > 2
+					? m.nombre.split(' ').slice(-2).join(' ')
+					: m.nombre}</span><span class="nb-year">${fmtYear(getMainYear(m))}</span>`;
+
+				// Hover: iluminar dot y conector
+				box.addEventListener('mouseenter', () => {
+					tlInner.querySelectorAll(`[data-mid="${mid}"]`).forEach(el => {
+						if (!el.classList.contains('name-box')) el.classList.add('highlighted');
+					});
+				});
+				box.addEventListener('mouseleave', () => {
+					tlInner.querySelectorAll(`[data-mid="${mid}"]`).forEach(el => {
+						el.classList.remove('highlighted');
+					});
+				});
+
+				box.addEventListener('click', () => openModal(m));
+				tlInner.appendChild(box);
+			});
+		}
+
+		// ── Modal ─────────────────────────────────────────────────────
+		const overlay = document.getElementById('modal-overlay');
+		const closeBtn = document.getElementById('modal-close');
+
+		function openModal(m) {
+			// ── Perfil (avatar + nombre + época) ──────────────────────
+			const profileEl = document.getElementById('modal-profile');
+			const avatarHTML = m.imagen
+				? `<img src="${m.imagen}" alt="Foto de ${m.nombre}">`
+				: `<div class="avatar-placeholder">∫</div>`;
+
+			profileEl.innerHTML = `
+    <div class="avatar-ring">${avatarHTML}</div>
+    <div class="profile-name" id="modal-pname">${m.nombre}</div>
+    <div class="profile-era">${getEpoca(getMainYear(m))}</div>`;
+
+			// ── Fechas ─────────────────────────────────────────────────
+			const datesEl = document.getElementById('modal-dates');
+			const chips = [];
+
+
+			if (m.nacimiento !== undefined && m.nacimiento !== null) {
+				const muerte = (m.fallecimiento !== undefined && m.fallecimiento !== null)
+					? fmtYear(m.fallecimiento) : '?';
+				chips.push(`<span class="date-chip">
+      <strong>Vida:</strong> ${fmtYear(m.nacimiento)} — ${muerte}
+    </span>`);
+			}
+
+			datesEl.innerHTML = chips.join('');
+
+			// ── Contexto ───────────────────────────────────────────────
+			document.getElementById('modal-context').innerHTML =
+				m.contexto || '<em style="opacity:.4">Sin descripción disponible.</em>';
+
+			// ── Fórmulas ───────────────────────────────────────────────
+			const fContainer = document.getElementById('modal-formulas');
+			fContainer.innerHTML = '';
+			if (m.formulas && m.formulas.length > 0) {
+				const sec = document.createElement('p');
+				sec.className = 'section-lbl'; sec.style.marginTop = '.2rem';
+				sec.textContent = 'Fórmulas destacadas';
+				fContainer.appendChild(sec);
+				m.formulas.forEach(f => {
+					const block = document.createElement('div');
+					block.className = 'formula-block';
+					block.innerHTML = `
+        <div class="fb-title">${f.titulo}</div>
+        <div class="fb-content">\\[ ${f.latex} \\]</div>`;
+					fContainer.appendChild(block);
+				});
+			}
+
+			// ── Galería de imágenes ────────────────────────────────────
+			const gContainer = document.getElementById('modal-gallery');
+			gContainer.innerHTML = '';
+			if (m.imagenes && m.imagenes.length > 0) {
+				const sec = document.createElement('p');
+				sec.className = 'section-lbl'; sec.style.marginTop = '.3rem';
+				sec.textContent = 'Imágenes';
+				gContainer.appendChild(sec);
+				const grid = document.createElement('div');
+				grid.className = 'modal-gallery-grid';
+				m.imagenes.forEach(img => {
+					const el = document.createElement('img');
+					el.className = 'gallery-thumb';
+					el.src = img.src;
+					el.alt = img.caption || '';
+					el.title = img.caption || '';
+					el.addEventListener('click', () => openLightbox(img.src, img.caption || ''));
+					grid.appendChild(el);
+				});
+				gContainer.appendChild(grid);
+			}
+
+			// ── Enlaces ────────────────────────────────────────────────
+			const lContainer = document.getElementById('modal-links');
+			lContainer.innerHTML = '';
+			if (m.enlaces && m.enlaces.length > 0) {
+				const sec = document.createElement('p');
+				sec.className = 'section-lbl'; sec.style.marginTop = '.3rem';
+				sec.textContent = 'Referencias';
+				lContainer.appendChild(sec);
+				m.enlaces.forEach(e => {
+					const a = document.createElement('a');
+					a.className = 'modal-link';
+					a.href = e.url;
+					a.target = '_blank';
+					a.rel = 'noopener noreferrer';
+					a.textContent = e.texto;
+					lContainer.appendChild(a);
+				});
+			}
+
+			// ── Mostrar modal ──────────────────────────────────────────
+			overlay.classList.add('active');
+			document.body.style.overflow = 'hidden';
+
+			// ── Renderizar LaTeX ───────────────────────────────────────
+			if (window.MathJax?.startup?.promise) {
+				MathJax.startup.promise.then(() => {
+					MathJax.typesetPromise([
+						document.getElementById('modal-context'),
+						fContainer
+					]).catch(err => console.warn('MathJax:', err));
+				});
+			}
+		}
+
+		function closeModal() {
+			overlay.classList.remove('active');
+			document.body.style.overflow = '';
+		}
+
+		closeBtn.addEventListener('click', closeModal);
+		overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+		document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLightbox(); } });
+
+		// ── Lightbox ──────────────────────────────────────────────────
+		const lightbox = document.getElementById('lightbox');
+		const lbImg = document.getElementById('lb-img');
+		const lbCaption = document.getElementById('lb-caption');
+
+		function openLightbox(src, caption) {
+			lbImg.src = src;
+			lbCaption.textContent = caption;
+			lightbox.classList.add('active');
+		}
+		function closeLightbox() {
+			lightbox.classList.remove('active');
+			lbImg.src = '';
+		}
+
+		document.getElementById('lb-close').addEventListener('click', closeLightbox);
+		document.getElementById('lb-backdrop').addEventListener('click', closeLightbox);
+
+		// ── Zoom ──────────────────────────────────────────────────────
+		const zoomSlider = document.getElementById('zoom-slider');
+		const zoomValue = document.getElementById('zoom-value');
+
+		zoomSlider.addEventListener('input', () => {
+			const z = parseInt(zoomSlider.value);
+			zoomValue.textContent = z + '×';
+			const factor = z === 0 ? 1 : 1 + z * 0.75;
+			tlInner.innerHTML = '';
+			buildTimeline(factor);
+		});
+
+		// ── Drag-to-scroll ────────────────────────────────────────────
+		let dragging = false, startX, scrollL;
+		tlScroll.addEventListener('mousedown', e => {
+			dragging = true; startX = e.pageX - tlScroll.offsetLeft; scrollL = tlScroll.scrollLeft;
+			tlScroll.style.cursor = 'grabbing';
+		});
+		tlScroll.addEventListener('mouseleave', () => { dragging = false; tlScroll.style.cursor = 'grab'; });
+		tlScroll.addEventListener('mouseup', () => { dragging = false; tlScroll.style.cursor = 'grab'; });
+		tlScroll.addEventListener('mousemove', e => {
+			if (!dragging) return;
+			e.preventDefault();
+			tlScroll.scrollLeft = scrollL - (e.pageX - tlScroll.offsetLeft - startX) * 1.4;
+		});
+
+		// ── Reconstruir al cambiar tamaño de ventana (para el zoom 0) ─
+		let resizeTimer;
+		window.addEventListener('resize', () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(() => buildTimeline(currentZoom), 200);
+		});
+
+		// ── Inicializar ───────────────────────────────────────────────
+		buildTimeline(1);
+
+	</script>
+</body>
+
+</html>
