@@ -891,7 +891,7 @@
 ════════════════════════════════════════════════ -->
 	<header class="site-header">
 		<span class="over">Bohorquez Callejas Angel Alejandro</span>
-		<h1>LA EVOLUCIÓN HISTÓRICA DE LA  <em>INTEGRAL</em><br></h1>
+		<h1>LA EVOLUCIÓN HISTÓRICA DE LA <em>INTEGRAL</em><br></h1>
 		<p class="lead">
 			Una travesía por los matemáticos que definieron la integral,
 			hasta lo que hoy este concepto fundamental en el cálculo. Desde sus orígenes en la antigüedad.
@@ -1086,7 +1086,9 @@
 				imagenes: [
 					{ src: "imagenes/1.png", caption: "El método de exhausción" }
 				],
-				enlaces: []
+				enlaces: [
+					{url: "https://www.geogebra.org/m/x5bm4ykm", texto: "Recurso interactivo-Arquimedes"}
+				]
 			},
 
 			{
@@ -1097,7 +1099,7 @@
 				imagen: "imagenes/cavalieri.png",
 				contexto: String.raw`Bonaventura Cavalieri buscaba un método
       <em>directo</em> para calcular áreas y volúmenes sin la laboriosa
-      doble reducción al absurdo del método griego. Su solución fue el
+      doble reducción al absurdo del método griego (había que suponer que el área era más grande y llegar a un absurdo, luego suponer que era más pequeña y llegar a otro absurdo; solo así se concluía el valor exacto). Su solución fue el
       <em>método de los indivisibles</em>: concebir un área como un número
       infinito de segmentos paralelos y un volumen como una pila infinita
       de secciones planas. Con este método demostró que
@@ -1112,7 +1114,9 @@
 				imagenes: [
 					{ src: "imagenes/2.png", caption: "El área como un tejido de líneas" }
 				],
-				enlaces: []
+				enlaces: [
+					{url: "https://www.geogebra.org/m/kzekakjx", texto: "Recurso interactivo-Cavalieri"}
+				]
 			},
 
 			{
@@ -1140,10 +1144,10 @@
 					}
 				],
 				imagenes: [
-					{ src: "imagenes/3.png", caption: "Rectángulos que se vuelven más delgados" }
+					{ src: "imagenes/3.1.png", caption: "Rectángulos que se vuelven más delgados" }
 				],
 				enlaces: [
-					{ url: "https://es.wikipedia.org/wiki/Pierre_de_Fermat", texto: "Fermat — Wikipedia" }
+					{ url: "https://www.geogebra.org/m/uzvn8prq", texto: "Recurso interactivo-Fermat" }
 				]
 			},
 
@@ -1174,10 +1178,10 @@
 					}
 				],
 				imagenes: [
-					{ src: "imagenes/3.png", caption: "Rectángulos que se vuelven más delgados" }
+					{ src: "imagenes/3.2.png", caption: "Rectángulos que se vuelven más delgados" }
 				],
 				enlaces: [
-					{ url: "https://es.wikipedia.org/wiki/John_Wallis", texto: "Wallis — Wikipedia" }
+					{ url: "https://www.geogebra.org/m/gkmkm9ma", texto: "Recurso interactivo-Wallis" }
 				]
 			},
 
@@ -1208,7 +1212,7 @@
 					{ src: "imagenes/4.png", caption: "El triángulo que se aplasta hasta ser tangente" }
 				],
 				enlaces: [
-					{ url: "https://es.wikipedia.org/wiki/Isaac_Barrow", texto: "Barrow — Wikipedia" }
+					{ url: "https://www.geogebra.org/m/bd2m2btg", texto: "Recurso interactivo-Barrow" }
 				]
 			},
 
@@ -1243,7 +1247,7 @@
 					{ src: "imagenes/5.png", caption: "El área que crece y su pendiente" }
 				],
 				enlaces: [
-					{ url: "https://es.wikipedia.org/wiki/Isaac_Newton", texto: "Newton — Wikipedia" }
+					{ url: "https://www.geogebra.org/m/upwfuzbz", texto: "Recurso interactivo-Newton-y-Leibniz" }
 				]
 			},
 
@@ -1278,7 +1282,7 @@
 					{ src: "imagenes/5.png", caption: "El área que crece y su pendiente" }
 				],
 				enlaces: [
-					{ url: "https://es.wikipedia.org/wiki/Gottfried_Leibniz", texto: "Leibniz — Wikipedia" }
+					{ url: "https://www.geogebra.org/m/upwfuzbz", texto: "Recurso interactivo-Newton-y-Leibniz" }
 				]
 			}
 
@@ -1590,7 +1594,7 @@
 			if (m.enlaces && m.enlaces.length > 0) {
 				const sec = document.createElement('p');
 				sec.className = 'section-lbl'; sec.style.marginTop = '.3rem';
-				sec.textContent = 'Referencias';
+				sec.textContent = 'GeoGebra (Link hacia recurso interactivo)';
 				lContainer.appendChild(sec);
 				m.enlaces.forEach(e => {
 					const a = document.createElement('a');
